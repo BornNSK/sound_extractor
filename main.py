@@ -20,6 +20,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
 def choose_file():
+    '''Метод выбора файла'''
     while True:
         file_path = input("Введите имя файла: ")
         if not os.path.exists(file_path):
@@ -30,6 +31,7 @@ def choose_file():
 
 
 def convert_file(video_file_path):
+    '''Метод конвертации файла'''
     video_file = Path(video_file_path)
     if not video_file.exists():
         logging.error("Входной файл не найден.")
@@ -41,16 +43,18 @@ def convert_file(video_file_path):
 
 
 async def send_telegram(bot_token, chat_id, file_path):
+    '''Метод отправки файла'''
     try:
         bot = Bot(token=bot_token)
         await bot.send_audio(chat_id=chat_id, audio=open(file_path, 'rb'))
         logging.debug('Сообщение отправлено успешно!')
-    except error.TelegramError as er:
-        error_message = f'Сбой в работе программы: {er}'
+    except error.TelegramError as e:
+        error_message = f'Сбой в работе программы: {e}'
         logging.error(error_message)
 
 
 async def main():
+    '''Основная функция'''
     # выбор файла
     video_file_path = choose_file()
 
@@ -58,7 +62,8 @@ async def main():
     converted_file_path = convert_file(video_file_path)
 
     # Отправка
-    await send_telegram(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, converted_file_path)
+    if converted_file_path:
+        await send_telegram(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, converted_file_path)
 
 
 if __name__ == '__main__':
