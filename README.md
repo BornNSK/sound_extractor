@@ -6,7 +6,7 @@ It's a simple script that convert your video file (for example downloaded from y
 ## How to install:
 1. Copy the project:
 ```sh
-[git clone https://github.com/BornNSK/sound_extractor.git](https://github.com/BornNSK/sound_extractor.git)
+git clone https://github.com/BornNSK/sound_extractor.git
 ```
 2. Create virtual environment:
 ```sh
