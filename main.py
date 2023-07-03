@@ -1,10 +1,11 @@
-import os
 import logging
+import os
 import sys
 from pathlib import Path
+
 import moviepy.editor as mp
-import telegram
 from dotenv import load_dotenv
+from telegram import Bot, error
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ def choose_file():
     while True:
         file_path = input("Введите имя файла: ")
         if not os.path.exists(file_path):
+            logging.error("Некорректное имя файла.")
             print("Файла с таким именем не существует. Убедитесь в корректности ввода.")
         else:
             return file_path
@@ -29,6 +31,9 @@ def choose_file():
 
 def convert_file(video_file_path):
     video_file = Path(video_file_path)
+    if not video_file.exists():
+        logging.error("Входной файл не найден.")
+        return None
     video = mp.VideoFileClip(str(video_file))
     audio = video.audio
     audio.write_audiofile(f'{video_file.stem}.mp3')
@@ -37,14 +42,12 @@ def convert_file(video_file_path):
 
 async def send_telegram(bot_token, chat_id, file_path):
     try:
-        bot = telegram.Bot(token=bot_token)
+        bot = Bot(token=bot_token)
         await bot.send_audio(chat_id=chat_id, audio=open(file_path, 'rb'))
         logging.debug('Сообщение отправлено успешно!')
-    except Exception as error:
-        error_message = f'Сбой в работе программы: {error}'
+    except error.TelegramError as er:
+        error_message = f'Сбой в работе программы: {er}'
         logging.error(error_message)
-    except FileNotFoundError:
-        print("Файл не найден.")
 
 
 async def main():
