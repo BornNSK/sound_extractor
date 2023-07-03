@@ -29,4 +29,4 @@ TELEGRAM_CHAT_ID='your_chat_id'
 1. Copy files that you want to convert into the folder with script;
 2. Run script;
 3. Write file name;
-4. You will get converted file in the folder and telegram chat that you add.
+4. You will get converted file in the folder and in telegram chat that you add.
