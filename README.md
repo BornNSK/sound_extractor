@@ -19,7 +19,7 @@ pip install -m requirements.txt
 ```
 4. Add Telegram settings:
 
-#create file with name: .env and add
+create file with name: .env and add
 ```sh
 TELEGRAM_TOKEN='telegram_bot_token'
 TELEGRAM_CHAT_ID='your_chat_id'
