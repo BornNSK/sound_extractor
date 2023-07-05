@@ -1,29 +1,24 @@
 import logging
 import os
-import sys
 from pathlib import Path
 
 import moviepy.editor as mp
 from dotenv import load_dotenv
-from telegram import Bot, error
+from telegram import Bot
 
 load_dotenv()
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s, %(levelname)s, %(message)s',
-                    )
-logger = logging.StreamHandler(sys.stdout)
-logger.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s, %(levelname)s, %(message)s')
 
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
 def choose_file():
-    '''Метод выбора файла'''
+    """Метод выбора файла"""
     while True:
         file_path = input("Введите имя файла: ")
-        if not os.path.exists(file_path):
+        if not Path(file_path).exists():
             logging.error("Некорректное имя файла.")
             print("Файла с таким именем не существует. Убедитесь в корректности ввода.")
         else:
@@ -31,30 +26,35 @@ def choose_file():
 
 
 def convert_file(video_file_path):
-    '''Метод конвертации файла'''
+    """Метод конвертации файла"""
     video_file = Path(video_file_path)
     if not video_file.exists():
         logging.error("Входной файл не найден.")
         return None
-    video = mp.VideoFileClip(str(video_file))
-    audio = video.audio
-    audio.write_audiofile(f'{video_file.stem}.mp3')
-    return f'{video_file.stem}.mp3'
+    try:
+        video = mp.VideoFileClip(str(video_file))
+        audio = video.audio
+        audio_file_path = f'{video_file.stem}.mp3'
+        audio.write_audiofile(audio_file_path)
+        return audio_file_path
+    except Exception as e:
+        logging.error(f'Ошибка конвертации файла: {e}')
+        return None
 
 
 async def send_telegram(bot_token, chat_id, file_path):
-    '''Метод отправки файла'''
+    """Метод отправки файла"""
     try:
         bot = Bot(token=bot_token)
-        await bot.send_audio(chat_id=chat_id, audio=open(file_path, 'rb'))
+        with open(file_path, 'rb') as audio_file:
+            await bot.send_audio(chat_id=chat_id, audio=audio_file)
         logging.debug('Сообщение отправлено успешно!')
-    except error.TelegramError as e:
-        error_message = f'Сбой в работе программы: {e}'
-        logging.error(error_message)
+    except Exception as e:
+        logging.error(f'Сбой в работе программы: {e}')
 
 
 async def main():
-    '''Основная функция'''
+    """Основная функция"""
     # выбор файла
     video_file_path = choose_file()
 
